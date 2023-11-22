@@ -39,5 +39,5 @@ public interface ElementsList {
 
 
     Integer[] toArray();
-//    Integer[] generateRandomArray();
+
 }

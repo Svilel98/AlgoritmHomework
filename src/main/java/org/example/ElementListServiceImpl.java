@@ -21,7 +21,11 @@ public class ElementListServiceImpl implements ElementsList {
                 return arrayString[i];
             }
         }
-        throw new ArrayIndexOutOfBoundsException("Массив заполнен");
+        Integer[] arrayString2 = new Integer[size + 1];
+        System.arraycopy(arrayString, 0, arrayString2, 0, size);
+        arrayString2[size] = item;
+        arrayString = arrayString2;
+        return item;
     }
 
     @Override
@@ -30,7 +34,10 @@ public class ElementListServiceImpl implements ElementsList {
             throw new NullPointerException("Укажите значение");
         }
         if (index < 0) {
-            throw new IllegalArgumentException("Ты крокодил");
+            throw new IllegalArgumentException("Укажите правильное значение");
+        }
+        if (index >= size) {
+            grow();
         }
         if (index < arrayString.length) {
             if (arrayString[index] == null) {
@@ -67,7 +74,9 @@ public class ElementListServiceImpl implements ElementsList {
             throw new NullPointerException("Укажите значение");
         }
         int index = indexOf(item);
-        System.arraycopy(arrayString, index + 1, arrayString, index, size - 1);
+
+        System.arraycopy(arrayString, index + 1, arrayString, index, size - 1 - index);
+        size--;
         return item;
     }
 
@@ -80,7 +89,8 @@ public class ElementListServiceImpl implements ElementsList {
             throw new IllegalArgumentException("Нет такого элемента");
         }
         Integer item = arrayString[index];
-        System.arraycopy(arrayString, index + 1, arrayString, index, size - 1);
+        System.arraycopy(arrayString, index + 1, arrayString, index, size - 1 - index);
+        size--;
         return item;
     }
 
@@ -118,12 +128,9 @@ public class ElementListServiceImpl implements ElementsList {
         if (item == null) {
             throw new NullPointerException("Укажите значение");
         }
-        if (item == null) {
-            throw new NullPointerException("Укажите значение");
-        }
         for (int i = 0; i < arrayString.length; i++) {
             if (arrayString[i] == item) {
-                return 1;
+                return i;
             }
         }
         return -1;
@@ -187,10 +194,6 @@ public class ElementListServiceImpl implements ElementsList {
         return newArray;
     }
 
-    //    @Override
-//    public void findFastMethodSort(ElementsList otherList){
-//
-//    };
     private static void swapElements(Integer[] arr, Integer indexA, Integer indexB) {
         Integer tmp = arr[indexA];
         arr[indexA] = arr[indexB];
@@ -199,24 +202,40 @@ public class ElementListServiceImpl implements ElementsList {
 
 
     private void sortSelection() {
-        for (int i = 0; i < arrayString.length - 1; i++) {
-            int minElementIndex = i;
-            for (int j = i + 1; j < arrayString.length; j++) {
-                if (arrayString[j] < arrayString[minElementIndex]) {
-                    minElementIndex = j;
-                }
-            }
-            swapElements(arrayString, i, minElementIndex);
+        quickSort(arrayString, 0, size);
+    }
+
+    public static void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
         }
     }
 
-//    @Override
-//    public Integer[] generateRandomArray() {
-//        java.util.Random random = new java.util.Random();
-//        Integer[] arr = new Integer[100];
-//        for (int i = 0; i < arr.length; i++) {
-//            arr[i] = random.nextInt(100_000) + 100_000;
-//        }
-//        return arr;
-//    }
+    private static Integer partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+
+    private void grow() {
+        if (size <= arrayString.length) {
+            size *= 1.5;
+            Integer[] arrayString2 = new Integer[size];
+            System.arraycopy(arrayString, 0, arrayString2, 0, arrayString.length);
+            arrayString = arrayString2;
+        }
+    }
 }
